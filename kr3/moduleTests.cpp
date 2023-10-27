@@ -9,8 +9,8 @@ void EnterMatrixFromFile(vector<vector<double>>& arrOrig, string filePath) {
 
 	inputStream >> m >> n;
 
-	for (auto i = 0; i < m; ++i) {
-		for (auto j = 0; j < n; ++j) {
+	for (int i = 0; i < m; ++i) {
+		for (int j = 0; j < n; ++j) {
 			inputStream >> variable;
 			subArr.push_back(variable);
 		}

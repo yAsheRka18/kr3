@@ -15,33 +15,33 @@ public:
 
 	virtual string Name() = 0;
 
-	inline int GetNumOfComparisons() const;
+	int GetNumOfComparisons() const;
 
-	inline int GetNumOfPermutations() const;
+	int GetNumOfPermutations() const;
 
-	inline void printInfo();
+	void printInfo();
 
 	void print(const vector<vector<double>>& arr) const;
 
-	inline void Clear();
+	void Clear();
 };
 
 class BubbleSort : public ISort {
 public:
 
-	BubbleSort(): ISort();
+	BubbleSort() : ISort() {};
 
 	virtual ~BubbleSort() = default;
 
 	virtual string Name() override final;
-	
+
 	virtual void Sort(vector<vector<double>>& arr) override final;
 };
 
 class SelectionSort : public ISort {
 public:
 
-	SelectionSort(): ISort();
+	SelectionSort() : ISort() {};
 
 	virtual ~SelectionSort() = default;
 
@@ -53,7 +53,7 @@ public:
 class InsertionSort : public ISort {
 public:
 
-	InsertionSort(): ISort();
+	InsertionSort() : ISort() {};
 
 	virtual ~InsertionSort() = default;
 
@@ -65,7 +65,7 @@ public:
 class ShellSort : public ISort {
 public:
 
-	ShellSort(): ISort();
+	ShellSort() : ISort() {};
 
 	virtual ~ShellSort() = default;
 
@@ -77,7 +77,7 @@ public:
 class QuickSort : public ISort {
 public:
 
-	QuickSort(): ISort();
+	QuickSort() : ISort() {};
 
 	virtual ~QuickSort() = default;
 
@@ -85,5 +85,7 @@ public:
 
 	void QuickSortColumn(vector<vector<double>>& arr, int col, int low, int high);
 	int PartitionColumn(vector<vector<double>>& arr, int col, int low, int high);
+	void QuickSortString(vector<vector<double>>& arr, int row, int low, int high);
+	int PartitionString(vector<vector<double>>& arr, int row, int low, int high);
 	virtual void Sort(vector<vector<double>>& arr) override final;
 };

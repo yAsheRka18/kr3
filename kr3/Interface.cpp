@@ -33,10 +33,11 @@ int Check_int()
 	{
 		cout << "Некорректный ввод. Повторите попытку >>" << endl;
 		cin.clear();
-		while (getchar() != '\n');
-		cin >> Input;
+		cin.ignore(numeric_limits <streamsize>::max(), '\n');   //!!!
+		cout << "Максимальное значение" << numeric_limits<streamsize>::max() << endl;
+		cin >> Input;	
 	}
-	while (getchar() != '\n');
+	cin.ignore(numeric_limits <streamsize>::max(), '\n');
 	return Input;
 }
 
@@ -46,7 +47,7 @@ string EnterFilePath()
     while (true)
     {
         getline(cin, Input);
-        regex Pattern_the_empoty_input("(\\s*)");
+        regex Pattern_the_empoty_input("(\\s*)");    // для поиска пустых строк или строк, состоящих только из пробелов (пустых символов)
 
 
         if (regex_match(Input, Pattern_the_empoty_input) == false)
@@ -74,22 +75,22 @@ void InputFromFile(vector<vector<double>>& arrOrig) {
 
     vector<double> subArr;
     double variable;
+	while (true) {
+		string filePath = " ";
+		filePath = EnterFilePath();
+		ifstream inputStream(filePath.c_str());
 
-    while (true) {
-        string filePath = " ";
-        filePath = EnterFilePath();
-        ifstream inputStream(filePath.c_str());
-        if (!inputStream.is_open()) {
-            cout << "File with this name don't exist. Try again" << endl;
-            continue;
-        }
-        else {
+		if (!inputStream.is_open() || Is_valid_filename(filePath) || !File_exists(filePath)) {
+			cout << "Ошибка файла. Попробуйте снова." << endl;
+			continue;
+		}
+
             if (!(inputStream >> m || m < 1)) {
-                cout << "Invalid data from file( incorrect value of 'rows' ) " << endl;
+                cout << "Неверные данные из файла( некорректные данные 'rows' ) " << endl;
                 continue;
             }
             if (!(inputStream >> n || n < 2)) {
-                cout << "Invalid data from file( incorrect value of 'collums' ) " << endl;
+                cout << "Неверные данные из файла( некорректные данные 'collums' ) " << endl;
                 continue;
             }
 
@@ -99,7 +100,7 @@ void InputFromFile(vector<vector<double>>& arrOrig) {
                         subArr.push_back(variable);
                     }
                     else {
-                        cout << "Invalid data from file( incorrect matrix value ) " << endl;
+                        cout << "Неверные данные из файла( некорректные значения матрицы ) " << endl;
                         arrOrig.clear();
                         continue;
                     }
@@ -110,7 +111,6 @@ void InputFromFile(vector<vector<double>>& arrOrig) {
 
             inputStream.close();
             break;
-        }
     }
 }
 
@@ -120,8 +120,8 @@ int EnterNum(const string& msg) {
 
 	while (cout << msg && !(cin >> item)) {
 		cin.clear();
-		cin.ignore(INT32_MAX, '\n');
-		cout << endl << "Invalide input. Try again" << endl;
+		cin.ignore(numeric_limits <streamsize>::max(), '\n');
+		cout << endl << "Неправильный ввод. Попробуйте снова" << endl;
 	}
 
 	return item;
@@ -133,8 +133,8 @@ void InputFromConsole(vector<vector<double>>& arrOrig) {
 	vector<double> subArr;
 	double variable;
 
-	while (m <= 0) m = EnterNum("Enter rows ( rows > 0 ): ");
-	while (n <= 1) n = EnterNum("Enter collums ( collums > 1 ): ");
+	while (m <= 0) m = EnterNum("Введите количество строк ( rows > 0 ): ");
+	while (n <= 1) n = EnterNum("Введите количество столбцов ( collums > 1 ): ");
 
 
 	for (auto i = 0; i < m; ++i) {
@@ -151,29 +151,23 @@ void InputFromConsole(vector<vector<double>>& arrOrig) {
 
 bool File_exists(string Filename)
 {
-	if (!_access(Filename.c_str(), 0)) return true;
+	if (!_access(Filename.c_str(), 0)) return true; //проверка файла по заданному пути
 	else return false;
 }
 
 bool Only_read(string Filename)
 {
-	if (_access(Filename.c_str(), 2)) return true;
+	if (_access(Filename.c_str(), 2)) return true; //проверка доступности файла 
 	else return false;
 }
 
 
 bool Is_valid_filename(const string& Filename)
 {
-	regex pattern(".+\\.txt$");
+	regex pattern(".+\\.txt$"); //проверка имени файла на соответсвие шаблону 
 	return !regex_match(Filename, pattern);
 }
 
-bool Сheck_empty_file(ifstream& file)
-{
-	file.seekg(0, ios::end);
-	if (file.tellg() == NULL) { file.seekg(0); return false; }
-	else { file.seekg(0); return true; }
-}
 
 vector<vector<double>> AM_random()
 {
@@ -228,13 +222,13 @@ void Save_to_file(
 		{
 		case Add_:
 		{
-			file.open(Filename, ios::app);
+			file.open(Filename, ios::app); //открывает файл для записи в конец файла
 			_exit = true;
 			break;
 		}
 		case Delete_and_add_:
 		{
-			file.open(Filename, ios::trunc);
+			file.open(Filename, ios::trunc);  //удаляет содержимое файла, если оно существует 
 			_exit = true;
 			break;
 		}
@@ -254,7 +248,6 @@ void Save_to_file(
 	file << "-------------" << endl;
 	numRows = matrix.size();
 	numCols = matrix[0].size();
-	//Bs.Save_s_matrix(file);
 	file << "Матрица отсортированная :" << '\n';
 	for (int i = 0; i < numRows; ++i) {
 		for (int j = 0; j < numCols; ++j) {
@@ -296,48 +289,9 @@ void Add_matrix(vector<vector<double>>& Matrix)
 
 		case From_file_:
 		{
-			bool _filename_correct = true;
 			ifstream Input_file;
-			string Filename;
-			string String_tmp;
-			Filename = "";
-			system("cls");
 
-			do
-			{
-				_filename_correct = true;
-				cout << "Введите путь к файлу. " << endl;
-				Filename = EnterFilePath();
-
-				if (Is_valid_filename(Filename))
-				{
-					cout << "Ошибка: Неверный формат файла - " << Filename << endl;
-					Filename.clear();
-					_filename_correct = false;
-				}
-
-
-				if (!File_exists(Filename))
-				{
-					cout << "Ошибка: Не существует файла - " << Filename << endl;
-					Filename.clear();
-					_filename_correct = false;
-				}
-
-				Input_file.open(Filename);
-
-				if (!Сheck_empty_file(Input_file))
-				{
-					cout << "Ошибка: файл пустой - " << Filename << endl;
-					Filename.clear();
-					_filename_correct = false;
-				}
-				Input_file.close();
-
-			} while (!_filename_correct);
-
-			Input_file.open(Filename);
-			cout << "Файл успешно открыт!" << endl;
+			cout << "Введите путь к файлу" << endl;
 			InputFromFile(Matrix);
 			Input_file.close();
 
@@ -370,7 +324,7 @@ void Sort_handler(vector<vector<double>> arr) {
 	QuickSort qs;
 
 	bs.Sort(first);
-	cout << "--	--	--	--Cортировка отбором--	--	--	--" << endl << endl;
+	cout << "--	--	--	--Cортировка пузырьком-	--	--	--" << endl << endl;
 	bs.print(first);
 
 	last = first;
@@ -379,41 +333,34 @@ void Sort_handler(vector<vector<double>> arr) {
 	ss.Sort(first);
 	cout << "--	--	--	--Cортировка отбором--	--	--	--" << endl << endl;
 	bs.print(first);
-	if (last != first) { cout << "Пошёл нахуй чёрт" << endl; return; }
+	if (last != first) { cout << "Error" << endl; return; }
 	last = first;
 
 	first = arr;
 
 	is.Sort(first);
-	cout << "--	--	--	--Cортировка отбором--	--	--	--" << endl << endl;
+	cout << "--	--	--	--Cортировка вставкой--	--	--	--" << endl << endl;
 	bs.print(first);
-	if (last != first) { cout << "Пошёл нахуй чёрт" << endl; return; }
+	if (last != first) { cout << "Error" << endl; return; }
 	last = first;
 
 	first = arr;
 
 	shells.Sort(first);
-	cout << "--	--	--	--Cортировка отбором--	--	--	--" << endl << endl;
+	cout << "--	--	--	--Cортировка Шелла--	--	--	--" << endl << endl;
 	bs.print(first);
-	if (last != first) { cout << "Пошёл нахуй чёрт" << endl; return; }
+	if (last != first) { cout << "Error" << endl; return; }
 	last = first;
 
 	first = arr;
 
 	qs.Sort(first);
-	cout << "--	--	--	--Cортировка отбором--	--	--	--" << endl << endl;
+	cout << "--	--	--	--Быстрая сортировка--	--	--	--" << endl << endl;
 	bs.print(first);
-	if (last != first) { cout << "Пошёл нахуй чёрт" << endl; return; }
+	if (last != first) { cout << "Error" << endl; return; }
 	last = first;
 
 	first = arr;
-
-	is.Sort(first);
-	cout << "--	--	--	--Cортировка отбором--	--	--	--" << endl << endl;
-	bs.print(first);
-	if (last != first) { cout << "Пошёл нахуй чёрт" << endl; return; }
-
-	//first = arr;
 
 	stringstream outputStream;
 
